@@ -113,12 +113,9 @@ function itemToCard(it) {
                 <span class="tag ${tagClass}">${escapeHtml(it.category)}</span>
             </div>
             ${thumbHtml}
-            <div class="actions">
-                <button class="btn openVideo" data-link="${escapeAttr(it.link)}" data-id="${it.id}">▶ Přehrát video</button>
-                <a class="btn ghost" href="${escapeAttr(it.link)}" target="_blank" rel="noopener">Otevřít</a>
-            </div>
+            <a class="play-external" href="${escapeAttr(it.link)}" target="_blank" rel="noopener">Přehrát video na YouTube 📺</a>
         </div>
-    </div>`;
+    </div>`; 
 }
 
 function tagClassFor(cat) {
