@@ -78,11 +78,32 @@ function renderCards(list) {
     cardsEl.innerHTML = list.map(itemToCard).join('');
     // attach listeners
     document.querySelectorAll('.openVideo').forEach(btn => btn.addEventListener('click', onOpenVideo));
+    // read-more toggles
+    document.querySelectorAll('.readMore').forEach(a => a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const el = e.currentTarget;
+        const card = el.closest('.card');
+        if (!card) return;
+        const desc = card.querySelector('.desc');
+        if (!desc) return;
+        const expanded = desc.classList.toggle('expanded');
+        el.textContent = expanded ? 'méně' : 'více...';
+    }));
 }
 
 function itemToCard(it) {
     const tagClass = tagClassFor(it.category);
-    const shortDesc = it.desc ? (it.desc.length > 140 ? it.desc.slice(0, 140) + '…' : it.desc) : '';
+    const desc = it.desc || '';
+    let descHtml = '';
+    if (!desc) {
+        descHtml = '';
+    } else if (desc.length <= 140) {
+        descHtml = `<p class="desc">${escapeHtml(desc)}</p>`;
+    } else {
+        const preview = escapeHtml(desc.slice(0, 140));
+        const rest = escapeHtml(desc.slice(140));
+        descHtml = `<p class="desc"><span class="preview">${preview}…</span><span class="rest">${rest}</span><a href="#" class="readMore">více...</a></p>`;
+    }
     return `
     <div class="card">
         <div class="card-body">
@@ -90,7 +111,7 @@ function itemToCard(it) {
                 <h3>${escapeHtml(it.name)}</h3>
                 <span class="tag ${tagClass}">${escapeHtml(it.category)}</span>
             </div>
-            <p>${escapeHtml(shortDesc)}</p>
+            ${descHtml}
             <div class="actions">
                 <button class="btn openVideo" data-link="${escapeAttr(it.link)}">▶ Přehrát video</button>
                 <a class="btn ghost" href="${escapeAttr(it.link)}" target="_blank" rel="noopener">Otevřít</a>
