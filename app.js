@@ -36,7 +36,8 @@ function handleResponse(response) {
         const name = safeGet(dt, r, 1) || 'Bez názvu';
         const category = safeGet(dt, r, 2) || '';
         const desc = safeGet(dt, r, 3) || '';
-        items.push({ link, name, category, desc });
+        const id = items.length;
+        items.push({ id, link, name, category, desc });
     }
     renderFilters();
     renderCards(items);
@@ -113,7 +114,7 @@ function itemToCard(it) {
             </div>
             ${descHtml}
             <div class="actions">
-                <button class="btn openVideo" data-link="${escapeAttr(it.link)}">▶ Přehrát video</button>
+                <button class="btn openVideo" data-link="${escapeAttr(it.link)}" data-id="${it.id}">▶ Přehrát video</button>
                 <a class="btn ghost" href="${escapeAttr(it.link)}" target="_blank" rel="noopener">Otevřít</a>
             </div>
         </div>
@@ -162,23 +163,32 @@ const modal = document.getElementById('modal');
 const videoFrame = document.getElementById('videoFrame');
 const closeModal = document.getElementById('closeModal');
 const openExtern = document.getElementById('openExtern');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc = document.getElementById('modalDesc');
 
 function onOpenVideo(e) {
-    const link = e.currentTarget.getAttribute('data-link') || '';
-    const vid = extractYouTubeId(link);
+    const btn = e.currentTarget;
+    const link = btn.getAttribute('data-link') || '';
+    const id = btn.getAttribute('data-id');
+    const item = (id !== null && id !== undefined) ? items.find(it => String(it.id) === String(id)) : null;
+
+    // inject title/description
+    if (modalTitle) modalTitle.textContent = (item && item.name) ? item.name : '';
+    if (modalDesc) modalDesc.textContent = (item && item.desc) ? item.desc : '';
+
+    const vid = extractYouTubeId(link || (item && item.link) || '');
     if (vid) {
         videoFrame.src = `https://www.youtube.com/embed/${vid}?rel=0&autoplay=1`;
         openExtern.href = `https://www.youtube.com/watch?v=${vid}`;
     } else {
-        // fallback open link
-        openExtern.href = link || '#';
+        openExtern.href = link || (item && item.link) || '#';
         videoFrame.src = '';
     }
     modal.setAttribute('aria-hidden', 'false');
 }
 closeModal.addEventListener('click', () => { closeVideo(); });
 modal.addEventListener('click', (ev) => { if (ev.target === modal) closeVideo(); });
-function closeVideo() { videoFrame.src = ''; modal.setAttribute('aria-hidden', 'true'); }
+function closeVideo() { videoFrame.src = ''; modal.setAttribute('aria-hidden', 'true'); if (modalTitle) modalTitle.textContent = ''; if (modalDesc) modalDesc.textContent = ''; }
 
 function extractYouTubeId(url) {
     if (!url) return null;

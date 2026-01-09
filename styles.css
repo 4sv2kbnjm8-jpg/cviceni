@@ -228,14 +228,10 @@ body {
     display: flex
 }
 
-.modal-content {
-    background: white;
-    padding: 12px;
-    border-radius: 12px;
-    max-width: 900px;
-    width: 90%;
-    position: relative
-}
+.modal-content{background:white;padding:12px;border-radius:12px;max-width:900px;width:90%;position:relative}
+.modal-info{padding:8px 12px 12px;border-bottom:1px solid rgba(15,23,36,0.04)}
+#modalTitle{margin:0;font-size:18px;color:var(--text-dark)}
+#modalDesc{margin-top:8px;color:var(--muted);font-size:13px;line-height:1.45}
 
 .video-wrap {
     width: 100%;
