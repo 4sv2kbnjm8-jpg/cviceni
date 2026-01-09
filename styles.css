@@ -145,11 +145,11 @@ body {
 
 .card h3{margin:0;font-size:18px;color:var(--text-dark)}
 
-/* Thumbnail (16:9) */
-.thumb-btn{display:block;border:0;padding:0;background:#f8fafc;width:100%;aspect-ratio:16/9;overflow:hidden;border-radius:10px;position:relative;cursor:pointer}
-.thumb-btn img{width:100%;height:100%;object-fit:cover;display:block;background-color:#e6eefc}
+/* Thumbnail (square 1:1) */
+.thumb-btn{display:block;border:0;padding:0;background:#f8fafc;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:10px;position:relative;cursor:pointer}
+.thumb-btn img{width:100%;height:100%;object-fit:cover;object-position:center;display:block;background-color:#e6eefc}
 .thumb-btn::after{content:'▶';position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:44px;height:44px;border-radius:50%;background:rgba(11,17,32,0.5);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:18px;pointer-events:none}
-.thumb.placeholder{width:100%;aspect-ratio:16/9;border-radius:10px;background:linear-gradient(135deg,rgba(11,17,32,0.03),rgba(11,17,32,0.06));display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.thumb.placeholder{width:100%;aspect-ratio:1/1;border-radius:10px;background:linear-gradient(135deg,rgba(11,17,32,0.03),rgba(11,17,32,0.06));display:flex;align-items:center;justify-content:center;color:var(--muted)}
 
 .tag {
     padding: 6px 10px;
