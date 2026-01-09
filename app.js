@@ -94,17 +94,17 @@ function renderCards(list) {
 
 function itemToCard(it) {
     const tagClass = tagClassFor(it.category);
-    const desc = it.desc || '';
-    let descHtml = '';
-    if (!desc) {
-        descHtml = '';
-    } else if (desc.length <= 140) {
-        descHtml = `<p class="desc">${escapeHtml(desc)}</p>`;
+    // try to extract a youtube id for thumbnail
+    const vid = extractYouTubeId(it.link || '');
+    let thumbHtml = '';
+    if (vid) {
+        const thumb = `https://img.youtube.com/vi/${vid}/hqdefault.jpg`;
+        thumbHtml = `<button class="thumb-btn openVideo" data-link="${escapeAttr(it.link)}" data-id="${it.id}" aria-label="Otevřít video"><img loading="lazy" src="${thumb}" alt="Náhled videa"/></button>`;
     } else {
-        const preview = escapeHtml(desc.slice(0, 140));
-        const rest = escapeHtml(desc.slice(140));
-        descHtml = `<p class="desc"><span class="preview">${preview}…</span><span class="rest">${rest}</span><a href="#" class="readMore">více...</a></p>`;
+        // fallback placeholder (shouldn't happen per user)
+        thumbHtml = `<div class="thumb placeholder" aria-hidden="true"></div>`;
     }
+
     return `
     <div class="card">
         <div class="card-body">
@@ -112,7 +112,7 @@ function itemToCard(it) {
                 <h3>${escapeHtml(it.name)}</h3>
                 <span class="tag ${tagClass}">${escapeHtml(it.category)}</span>
             </div>
-            ${descHtml}
+            ${thumbHtml}
             <div class="actions">
                 <button class="btn openVideo" data-link="${escapeAttr(it.link)}" data-id="${it.id}">▶ Přehrát video</button>
                 <a class="btn ghost" href="${escapeAttr(it.link)}" target="_blank" rel="noopener">Otevřít</a>
