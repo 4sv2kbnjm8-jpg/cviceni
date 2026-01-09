@@ -10,18 +10,26 @@
 </head>
 
 <body>
-    <header class="topbar">
-        <h1>Cviky</h1>
-        <div class="controls">
-            <input id="search" placeholder="Vyhledat název...">
-            <select id="categoryFilter">
-                <option value="">Všechny kategorie</option>
-            </select>
-            <button id="clear">Vyčistit</button>
+    <header class="hero">
+        <div class="hero-inner">
+            <h1>🔋 Baterie cviků</h1>
+            <p class="subtitle">Kompletní sada testovacích a tréninkových aktivit</p>
+
+            <div class="search-wrap">
+                <input id="search" class="search-input" placeholder="Vyhledat cviky...">
+                <div class="pills" id="pills"></div>
+                <div class="search-actions">
+                    <button id="clear" class="btn ghost">Vyčistit</button>
+                </div>
+            </div>
         </div>
     </header>
+
     <main>
-        <div id="cards" class="grid"></div>
+        <div class="container">
+            <div class="summary"><span id="countIcon">📊</span> <span id="countText">Načítám…</span></div>
+            <div id="cards" class="grid"></div>
+        </div>
     </main>
 
     <!-- Modal for video -->

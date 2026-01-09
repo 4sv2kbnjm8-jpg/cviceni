@@ -7,11 +7,13 @@ google.charts.load('current', { packages: ['corechart'] });
 google.charts.setOnLoadCallback(fetchSheet);
 
 const cardsEl = document.getElementById('cards');
-const catFilter = document.getElementById('categoryFilter');
+const pillsEl = document.getElementById('pills');
 const searchInput = document.getElementById('search');
 const clearBtn = document.getElementById('clear');
 
 let items = [];
+
+const countText = document.getElementById('countText');
 
 function fetchSheet() {
     const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?sheet=${encodeURIComponent(SHEET_NAME)}&headers=1`;
@@ -44,10 +46,34 @@ function safeGet(dt, r, c) { try { return dt.getValue(r, c); } catch (e) { retur
 
 function renderFilters() {
     const cats = Array.from(new Set(items.map(i => i.category).filter(Boolean))).sort();
-    catFilter.innerHTML = '<option value="">Všechny kategorie</option>' + cats.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+    // render pills
+    pillsEl.innerHTML = '';
+    const all = document.createElement('button');
+    all.className = 'pill active';
+    all.textContent = '🌟 Vše';
+    all.dataset.cat = '';
+    pillsEl.appendChild(all);
+    cats.forEach(c => {
+        const b = document.createElement('button');
+        b.className = 'pill';
+        b.textContent = c;
+        b.dataset.cat = c;
+        pillsEl.appendChild(b);
+    });
+    // attach handlers
+    pillsEl.querySelectorAll('.pill').forEach(p => p.addEventListener('click', onPillClick));
+}
+
+function onPillClick(e) {
+    // toggle active
+    pillsEl.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    const target = e.currentTarget;
+    target.classList.add('active');
+    applyFilters();
 }
 
 function renderCards(list) {
+    countText.textContent = `Zobrazeno ${list.length} z ${items.length} cviků`;
     if (!list.length) { cardsEl.innerHTML = '<div style="padding:20px;color:var(--muted)">Nenalezeny žádné položky.</div>'; return; }
     cardsEl.innerHTML = list.map(itemToCard).join('');
     // attach listeners
@@ -55,27 +81,29 @@ function renderCards(list) {
 }
 
 function itemToCard(it) {
-    const catClass = catClassFor(it.category);
-    const shortDesc = it.desc ? (it.desc.length > 120 ? it.desc.slice(0, 120) + '…' : it.desc) : '';
+    const tagClass = tagClassFor(it.category);
+    const shortDesc = it.desc ? (it.desc.length > 140 ? it.desc.slice(0, 140) + '…' : it.desc) : '';
     return `
-  <div class="card">
-    <div class="meta">
-      <h3>${escapeHtml(it.name)}</h3>
-      <span class="label ${catClass}">${escapeHtml(it.category)}</span>
-    </div>
-    <p>${escapeHtml(shortDesc)}</p>
-    <div class="actions">
-      <button class="btn small openVideo" data-link="${escapeAttr(it.link)}">Přehrát / náhled</button>
-      <a class="btn small" href="${escapeAttr(it.link)}" target="_blank" rel="noopener">Otevřít</a>
-    </div>
-  </div>`;
+    <div class="card">
+        <div class="card-body">
+            <div class="meta">
+                <h3>${escapeHtml(it.name)}</h3>
+                <span class="tag ${tagClass}">${escapeHtml(it.category)}</span>
+            </div>
+            <p>${escapeHtml(shortDesc)}</p>
+            <div class="actions">
+                <button class="btn openVideo" data-link="${escapeAttr(it.link)}">▶ Přehrát video</button>
+                <a class="btn ghost" href="${escapeAttr(it.link)}" target="_blank" rel="noopener">Otevřít</a>
+            </div>
+        </div>
+    </div>`;
 }
 
-function catClassFor(cat) {
+function tagClassFor(cat) {
     if (!cat) return '';
     const key = cat.toLowerCase();
     if (key.includes('koordin')) return 'koord';
-    if (key.includes('síla') || key.includes('síla') || key.includes('sila') || key.includes('síla')) return 'sila';
+    if (key.includes('síla') || key.includes('sila') || key.includes('síla')) return 'sila';
     if (key.includes('reakc') || key.includes('reakce')) return 'reakce';
     if (key.includes('vytr') || key.includes('vytrvalost')) return 'vytr';
     if (key.includes('rych') || key.includes('rychlost')) return 'rych';
@@ -84,12 +112,22 @@ function catClassFor(cat) {
 
 // Search / filter
 searchInput.addEventListener('input', applyFilters);
-catFilter.addEventListener('change', applyFilters);
-clearBtn.addEventListener('click', () => { searchInput.value = ''; catFilter.value = ''; applyFilters(); });
+pillsEl && pillsEl.addEventListener('click', (e) => { /* delegated in renderFilters */ });
+clearBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    // reset pills to first (Vše)
+    if (pillsEl) {
+        pillsEl.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+        const first = pillsEl.querySelector('.pill');
+        if (first) first.classList.add('active');
+    }
+    applyFilters();
+});
 
 function applyFilters() {
     const q = searchInput.value.trim().toLowerCase();
-    const cat = catFilter.value;
+    const activePill = pillsEl.querySelector('.pill.active');
+    const cat = activePill ? (activePill.dataset.cat || '') : '';
     const filtered = items.filter(i => {
         if (cat && i.category !== cat) return false;
         if (q && !((i.name || '').toLowerCase().includes(q) || (i.desc || '').toLowerCase().includes(q))) return false;
